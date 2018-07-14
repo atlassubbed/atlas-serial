@@ -18,8 +18,29 @@ This is for running async subroutines in serial, regardless of whether or not ta
 
 ## examples
 
-Todo.
+Usage is pretty simple -- just pass in an array of jobs (which each take a `done` callback) and an `allDone` callback. The `allDone` callback is optional and is called after each of the `done` callbacks have been called.
+
+#### array of jobs
+
+The following will run `reddit.post` only *after* `email.send` has finished:
+
+```javascript
+const parallel = require("atlas-parallel");
+serial([
+  done => email.send("atlassubbed@gmail.com", "hello", err => {
+    done(err)
+  }),
+  done => reddit.post("atlassubbed.png", "mildlyinteresting", err => {
+    done(err);
+  })
+], errs => {
+  // all done!
+  // errs === [] on success
+  // errs === [err2] if job2 fails
+  // errs === [err1, err2] if both fail
+})
+```
 
 ## caveats
 
-Since order is important, a hash of tasks is not supported, as object key order is not guaranteed in javascript.
+Since order is important, a hash of tasks is not supported, as object key order is not guaranteed in javascript. If you care about return values and which error is which, use a waterfall instead.
