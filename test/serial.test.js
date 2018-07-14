@@ -5,9 +5,9 @@ const serial = require("../src/serial")
 
 describe("serial", function(){
 
-  const job1 = makeAsyncJob(20, "result1")
-  const job2 = makeAsyncJob(200, "result2")
-  const job3 = makeAsyncJob(0, "result3", true)
+  const job1 = makeAsyncJob(20)
+  const job2 = makeAsyncJob(200)
+  const job3 = makeAsyncJob(0, new Error("job3"))
 
   it("throws an error if not passed an non-empty array", function(){
     const problemArgs = [NaN, Infinity, true, 22/7, 5, done => {}, "str", /reg/, new Date(), [], {}, null, undefined]
@@ -57,18 +57,15 @@ describe("serial", function(){
       serial([
         done => {
           numRan++, job3(err => {
-            expect(err).to.be.an('error')
-            expect(numRan).to.equal(1)
-            numErr++
+            if (err) numErr++;
             done(err)
           })
         },
         done => {
           numRan++, job2(err => {
-            expect(err).to.be.null;
+            if (err) numErr++;
             expect(numRan).to.equal(2)
             expect(numErr).to.equal(1)
-            done(err)
             testDone()
           })
         }
@@ -81,16 +78,16 @@ describe("serial", function(){
       })
     })
     it("should return empty list if there are no errors", function(testDone){
-      serial([job1, job2], (errs, results) => {
+      serial([job1, job2], errs => {
         expect(errs).to.be.an("array").which.is.empty
         testDone()
       })
     })
     it("should report a list of errors, if there are errors", function(testDone){
-      serial([job1, job2, job3], (errs, results) => {
+      serial([job1, job2, job3], errs => {
         expect(errs).to.be.an("array").with.lengthOf(1)
         expect(errs[0]).to.be.an("error")
-        expect(errs[0].message).to.equal("result3")
+        expect(errs[0].message).to.equal("job3")
         testDone()
       })
     })

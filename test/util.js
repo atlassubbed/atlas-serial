@@ -1,7 +1,5 @@
-const makeAsyncJob = (timeout, result, hasError) => done => {
-  setTimeout(() => {
-    done(hasError ? new Error(result) : null, hasError ? undefined : result)
-  }, timeout)
+const makeAsyncJob = (timeout, error) => done => {
+  setTimeout(() => done(error || null), timeout)
 }
 
 module.exports = { makeAsyncJob }
