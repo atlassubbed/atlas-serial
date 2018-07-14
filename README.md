@@ -25,7 +25,7 @@ Usage is pretty simple -- just pass in an array of jobs (which each take a `done
 The following will run `reddit.post` only *after* `email.send` has finished:
 
 ```javascript
-const parallel = require("atlas-parallel");
+const serial = require("atlas-serial");
 serial([
   done => email.send("atlassubbed@gmail.com", "hello", err => {
     done(err)
